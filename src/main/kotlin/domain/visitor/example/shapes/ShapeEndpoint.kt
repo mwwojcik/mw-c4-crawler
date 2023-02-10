@@ -1,13 +1,10 @@
 package domain.visitor.example.shapes
 
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
 
-@RestController
-class ShapeEndpoint {
-    @GetMapping("/shapes")
-    fun getShape(): ResponseEntity<String> {
-        return ResponseEntity.ok("Shape")
+//@RestController
+class ShapeEndpoint(service: ShapeService) {
+    // @GetMapping("/shapes")
+    fun getShape(): String {
+        return "Shape"
     }
 }
