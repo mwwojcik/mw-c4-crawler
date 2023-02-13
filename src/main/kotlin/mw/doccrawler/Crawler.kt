@@ -45,7 +45,7 @@ class Crawler {
             .toList()
 
 
-        TraverseContext(psi.flatMap { it.asList() })
+        TraverseContext(psi.flatMap { it.asList() }).traverse()
 
         println()
 
