@@ -1,14 +1,19 @@
 package mw.doccrawler
 
-import org.jetbrains.kotlin.com.intellij.psi.JavaRecursiveElementVisitor
-import org.jetbrains.kotlin.com.intellij.psi.PsiField
-import org.jetbrains.kotlin.com.intellij.psi.PsiLocalVariable
+import org.jetbrains.kotlin.asJava.toLightElements
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtParameterList
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor
 import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtTreeVisitor
 import org.jetbrains.kotlin.psi.KtTreeVisitorVoid
+import org.jetbrains.kotlin.psi.KtTypeArgumentList
+import org.jetbrains.kotlin.psi.KtTypeProjection
+import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.kotlin.psi.KtUserType
+import org.jetbrains.kotlin.psi.KtValueArgumentList
+import org.jetbrains.kotlin.resolve.BindingContextUtils
+import org.jetbrains.kotlin.resolve.resolveQualifierAsReceiverInExpression
 
 
 class TraverseContext(
@@ -31,12 +36,14 @@ class TraverseContext(
         roots.get(0).accept(MyKtVisitor())
 
 
-      // roots.forEach { visit(it) }
+       roots.forEach { visit(it) }
     }
 
     private fun visit(it: KtClass) {
+
         println("visited=>${it.name}")
         //it.getChildrenOfType<KtClass>().asList().forEach { visit(it) }
+
         it.primaryConstructor?.typeParameters?.forEach{
             child->
             println(child)
@@ -45,9 +52,38 @@ class TraverseContext(
 }
 
 class MyKtVisitor:KtTreeVisitorVoid(){
+
     override fun visitPrimaryConstructor(constructor: KtPrimaryConstructor) {
-        println()
+
+        constructor.valueParameterList?.parameters?.forEach {
+            if (it.typeReference?.typeElement is KtUserType) {
+                val myRef=it.typeReference
+
+                val typeShortName = (it.typeReference?.typeElement as KtUserType).referencedName
+                println(typeShortName)
+            }
+        }
         super.visitPrimaryConstructor(constructor)
+    }
+
+    override fun visitParameterList(list: KtParameterList) {
+        super.visitParameterList(list)
+    }
+
+    override fun visitTypeProjection(typeProjection: KtTypeProjection) {
+        super.visitTypeProjection(typeProjection)
+    }
+
+    override fun visitValueArgumentList(list: KtValueArgumentList) {
+        super.visitValueArgumentList(list)
+    }
+
+    override fun visitTypeArgumentList(typeArgumentList: KtTypeArgumentList) {
+        super.visitTypeArgumentList(typeArgumentList)
+    }
+
+    override fun visitParameter(parameter: KtParameter) {
+        super.visitParameter(parameter)
     }
 
     override fun visitUserType(type: KtUserType) {
@@ -56,5 +92,10 @@ class MyKtVisitor:KtTreeVisitorVoid(){
 
     override fun visitProperty(property: KtProperty) {
         super.visitProperty(property)
+    }
+
+    override fun visitTypeReference(typeReference: KtTypeReference) {
+        super.visitTypeReference(typeReference)
+        typeReference.toLightElements()
     }
 }

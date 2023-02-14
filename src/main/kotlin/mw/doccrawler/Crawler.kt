@@ -37,6 +37,7 @@ class Crawler {
         val root = "src/main/kotlin/domain"
 
 
+
         val psi = Files.walk(Paths.get(root))
             .filter { Files.isRegularFile(it) }
             .map {
