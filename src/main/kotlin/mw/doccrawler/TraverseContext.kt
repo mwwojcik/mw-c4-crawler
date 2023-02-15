@@ -1,6 +1,7 @@
 package mw.doccrawler
 
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.psi.psiUtil.getSuperNames
 
@@ -33,13 +34,26 @@ class TraverseContext(
     private fun visit(it: KtClassItem) {
         println("visited=>${it.ktClass.name}")
         it.ktClass.primaryConstructor?.valueParameterList?.parameters?.forEach {
-            if (it.typeReference?.typeElement is KtUserType) {
-                val typeShortName = (it.typeReference?.typeElement as KtUserType).referencedName
-                println(typeShortName)
-                resolveTypeByShortName(shortName = typeShortName!!)
+            if (isReferenceType(it)) {
+                extractReferenceName(it)?.let { typeShortName ->
+                    resolveTypeByShortName(typeShortName)?.let { classItem ->
+                        extractItemsToVisit(classItem).forEach { item -> visit(item) }
+                    }
+                }
             }
         }
     }
+
+    private fun extractItemsToVisit(classItem: KtClassItem) =
+        if (classItem.isInterface())
+            classItem.knownImplementations
+        else
+            setOf(classItem)
+
+
+    private fun isReferenceType(it: KtParameter) = it.typeReference?.typeElement is KtUserType
+
+    private fun extractReferenceName(it: KtParameter) = (it.typeReference?.typeElement as KtUserType).referencedName
 
     private fun collectSupertypeRelations(
         ktItem: KtClassItem,
