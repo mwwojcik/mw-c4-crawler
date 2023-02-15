@@ -31,25 +31,24 @@ class TraverseContext(
         roots.forEach { visit(it) }
     }
 
-    private fun visit(it: KtClassItem) {
-        println("visited=>${it.ktClass.name}")
+    private fun visit(it: KtClassItem, visited: MutableSet<String> = mutableSetOf(), root: KtClassItem? = null) {
+        if (visited.contains(it.shortName))
+            return
+        visited.add(it.shortName)
+        println("visited=>${it.ktClass.name} root=>${root?.shortName}")
         it.ktClass.primaryConstructor?.valueParameterList?.parameters?.forEach {
             if (isReferenceType(it)) {
                 extractReferenceName(it)?.let { typeShortName ->
                     resolveTypeByShortName(typeShortName)?.let { classItem ->
-                        extractItemsToVisit(classItem).forEach { item -> visit(item) }
+                        if (classItem.isInterface())
+                            classItem.knownImplementations.forEach { item -> visit(item, visited, classItem) }
+                        else
+                            visit(classItem, visited)
                     }
                 }
             }
         }
     }
-
-    private fun extractItemsToVisit(classItem: KtClassItem) =
-        if (classItem.isInterface())
-            classItem.knownImplementations
-        else
-            setOf(classItem)
-
 
     private fun isReferenceType(it: KtParameter) = it.typeReference?.typeElement is KtUserType
 
