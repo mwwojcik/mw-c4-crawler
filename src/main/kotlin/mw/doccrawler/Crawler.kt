@@ -34,7 +34,7 @@ class Crawler {
     @PostConstruct
     fun process() {
 
-        val root = "/Users/mariusz.wojcik/workspace/allegro/allegro-repo/allegro-care-variants-facade/src/main/kotlin"
+        val root = "src/main/kotlin/domain"
 
 
 
