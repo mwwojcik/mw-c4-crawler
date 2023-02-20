@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.com.intellij.psi.PsiManager
 import org.jetbrains.kotlin.com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.fir.resolve.dfa.stackOf
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
@@ -33,10 +34,7 @@ class Crawler {
 
     @PostConstruct
     fun process() {
-
         val root = "src/main/kotlin/domain"
-
-
 
         val psi = Files.walk(Paths.get(root))
             .filter { Files.isRegularFile(it) }
@@ -44,31 +42,10 @@ class Crawler {
                 createKtFile(Files.readString(it), it.toString()).getChildrenOfType<KtClass>()
             }
             .toList()
-
-
-        TraverseContext(psi.flatMap { it.asList() }).traverse()
-
-        println()
-
-        /* psi.forEach {
-             val classes = it.getChildrenOfType<KtClass>().asList()
-             prettyPrint(classes)
-         }*/
-    }
-
-    private fun prettyPrint(classes: List<KtClass>) {
-        classes.forEach {
-
-
-            it.primaryConstructor?.children?.forEach {
-                println("children=>$it")
-                println(it.text)
-            }
-
-
-            /* println("name=${it.name}")
-             println("properties:")
-             it.getProperties().forEach { println(it.name) }*/
+        val content:StringBuilder = java.lang.StringBuilder("")
+        TraverseContext(psi.flatMap { it.asList() }).traverse().forEach {
+            content.append(it.prettyPrint())
         }
+        Files.writeString(Paths.get("doc/content.puml"), content.toString())
     }
 }

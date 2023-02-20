@@ -1,0 +1,7 @@
+Container_Boundary(c2,""){
+Component(ShapeEndpoint, "ShapeEndpoint", "Kotlin", "",$sprite="GPU,scale=0.3")
+Component(ShapeServiceImpl, "ShapeServiceImpl", "Kotlin", "",$sprite="GPU,scale=0.3")
+Component(ShapeAdapter, "ShapeAdapter", "Kotlin", "",$sprite="GPU,scale=0.3")
+}
+Rel(ShapeEndpoint,ShapeService,"")
+Rel(ShapeService,ShapeRepository,"")

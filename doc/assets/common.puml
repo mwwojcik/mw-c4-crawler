@@ -1,0 +1,101 @@
+@startuml
+
+
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+'!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Dynamic.puml
+
+!includeurl https://raw.githubusercontent.com/skleanthous/C4-PlantumlSkin/master/build/output/c4.puml
+
+skinparam linetype polyline
+skinparam linetype ortho
+
+
+!define GCPPuml https://raw.githubusercontent.com/davidholsgrove/gcp-icons-for-plantuml/master/dist
+!includeurl https://raw.githubusercontent.com/davidholsgrove/gcp-icons-for-plantuml/master/dist/GCPCommon.puml
+
+!includeurl GCPPuml/APIManagement/CloudEndpoints.puml
+!includeurl GCPPuml/Networking/CloudExternalIPAddresses.puml
+!includeurl GCPPuml/Storage/CloudStorage.puml
+!includeurl GCPPuml/Compute/GPU.puml
+!includeurl GCPPuml/APIManagement/APIAnalytics.puml
+!includeurl GCPPuml/Compute/CloudRun.puml
+!includeurl GCPPuml/DataAnalytics/CloudComposer.puml
+
+
+
+'*********** C1 Level ****************************
+
+!unquoted procedure PersonL1($alias, $label, $descr="")
+    Person($alias, $label, $descr)
+!endprocedure
+!unquoted procedure SystemL1($alias, $label, $descr="",$sprite="")
+    System($alias, $label, $descr,$sprite)
+!endprocedure
+!unquoted procedure SystemExtL1($alias, $label, $descr="",$sprite="")
+    System_Ext($alias, $label, $descr,$sprite)
+!endprocedure
+'*********** End of C1 Level ****************************
+
+!global $ENDPOINT_BG_COLOR = "#85bbf0"
+!global $EXTERNAL_SERVICE_BG_COLOR = "#999999"
+!global $SERVICE_BG_COLOR = "#85bbf0"
+!global $EVENT_BG_COLOR = "#85bbf0"
+!global $TIMER_BG_COLOR = "#85bbf0"
+!global $REPOSITORY_BG_COLOR = "#85bbf0"
+
+AddElementTag("Endpoint",$sprite="CloudEndpoints,scale=0.3",$bgColor="#c1f0ff")
+AddElementTag("ExternalService",$sprite="CloudExternalIPAddresses,scale=0.3")
+AddElementTag("Service",$sprite="GPU,scale=0.3",$bgColor="#ffffcc")
+AddElementTag("Event",$sprite="APIAnalytics,scale=0.3",$bgColor="#ffe0df")
+AddElementTag("Timer",$sprite="CloudRun,scale=0.3",$bgColor="#efefff")
+AddElementTag("Repository",$sprite="CloudStorage,scale=0.3",$bgColor="#97ff97")
+AddElementTag("DAG",$sprite="CloudComposer,scale=0.3",$bgColor="#3CA2A6")
+
+!unquoted procedure ControllerComponent($alias, $label, $techn="", $descr="")
+    Component($alias, $label, $techn,$descr,$tags="Endpoint")
+!endprocedure
+!unquoted procedure ExternalServiceComponent($alias, $label, $techn="", $descr="")
+    Component_Ext($alias, $label, $techn,$descr,$tags="ExternalService")
+!endprocedure
+!unquoted procedure ServiceComponent($alias, $label, $techn="", $descr="")
+    Component($alias, $label, $techn,$descr,$tags="Service")
+!endprocedure
+!unquoted procedure EventComponent($alias, $label, $techn="", $descr="")
+    Component($alias, $label, $techn,$descr,$tags="Event")
+!endprocedure
+!unquoted procedure TimerComponent($alias, $label, $techn="", $descr="")
+    Component($alias, $label, $techn,$descr,$tags="Timer")
+!endprocedure
+!unquoted procedure RepositoryComponent($alias, $label, $techn="", $descr="")
+    ComponentDb($alias, $label, $techn,$descr,$tags="Repository")
+!endprocedure
+!unquoted procedure DAGComponent($alias, $label, $techn="", $descr="")
+    Component($alias, $label, $techn,$descr,$tags="DAG")
+!endprocedure
+
+
+
+
+LAYOUT_TOP_DOWN()
+@enduml
+
+@startuml
+
+skinparam legendBackgroundColor #FFFFFF
+skinparam LegendFontColor #333333
+skinparam LegendFontSize 10
+legend right
+    |    Symbol     |     Type              |
+    |<#c1f0ff><$CloudEndpoints,scale=0.2,color=#333333>  | <#c1f0ff>Endpoint |
+    |<#999999><$CloudExternalIPAddresses,scale=0.2,color=#333333>  |<#999999> External service        |
+    |<#97ff97><$CloudStorage,scale=0.2,color=#333333>|<#97ff97> Repository|
+    |<#ffffcc><$GPU,scale=0.2,color=#333333>|<#ffffcc> Service|
+    |<#ffe0df><$APIAnalytics,scale=0.2,color=#333333>|<#ffe0df> Event|
+    |<#efefff><$CloudRun,scale=0.2,color=#333333>|<#efefff> Timer|
+    |<#3CA2A6><$CloudComposer,scale=0.2,color=#333333>|<#3CA2A6> DAG|
+endlegend
+@enduml
+
+

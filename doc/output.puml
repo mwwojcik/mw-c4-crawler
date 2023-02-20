@@ -1,0 +1,32 @@
+@startuml
+!includeurl <C4/C4_Component>
+
+!includeurl https://raw.githubusercontent.com/skleanthous/C4-PlantumlSkin/master/build/output/c4.puml
+!define GCPPuml https://raw.githubusercontent.com/davidholsgrove/gcp-icons-for-plantuml/master/dist
+!includeurl https://raw.githubusercontent.com/davidholsgrove/gcp-icons-for-plantuml/master/dist/GCPCommon.puml
+
+!includeurl GCPPuml/APIManagement/CloudEndpoints.puml
+!includeurl GCPPuml/Compute/GPU.puml
+
+!includeurl GCPPuml/Networking/CloudExternalIPAddresses.puml
+!includeurl GCPPuml/Storage/CloudStorage.puml
+!includeurl GCPPuml/Compute/GPU.puml
+!includeurl GCPPuml/APIManagement/APIAnalytics.puml
+!includeurl GCPPuml/Compute/CloudRun.puml
+!includeurl GCPPuml/DataAnalytics/CloudComposer.puml
+
+
+skinparam padding 20
+skinparam linetype polyline
+skinparam linetype ortho
+
+'LAYOUT_LEFT_RIGHT()
+
+title C3 - Component Diagram
+
+!includeurl content.puml
+
+
+
+
+@enduml
