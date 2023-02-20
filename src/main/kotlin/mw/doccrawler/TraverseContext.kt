@@ -24,30 +24,44 @@ class TraverseContext(
                 it
             }
         }.toList()
-        roots = elements.filter { it.shortName.contains("Endpoint") }.toList()
+        roots = elements.filter { it.shortName.contains("ConditionEndpoint") }.toList()
     }
 
     fun traverse() {
-        roots.forEach { visit(it) }
+        val modules=roots.map { visit(it, builder = ModuleBuilder(), visited = mutableSetOf()).build() }.toList()
+        println(modules)
     }
 
-    private fun visit(it: KtClassItem, visited: MutableSet<String> = mutableSetOf(), root: KtClassItem? = null) {
-        if (visited.contains(it.shortName))
-            return
-        visited.add(it.shortName)
-        println("visited=>${it.ktClass.name} root=>${root?.shortName}")
-        it.ktClass.primaryConstructor?.valueParameterList?.parameters?.forEach {
+    private fun visit(
+        node: KtClassItem,
+        visited: MutableSet<String> = mutableSetOf(),
+        root: KtClassItem? = null,
+        builder: ModuleBuilder
+    ) :ModuleBuilder {
+        if (visited.contains(node.shortName))
+            return builder
+        visited.add(node.shortName)
+        builder.withComponent(node)
+        node.ktClass.primaryConstructor?.valueParameterList?.parameters?.forEach {
             if (isReferenceType(it)) {
                 extractReferenceName(it)?.let { typeShortName ->
                     resolveTypeByShortName(typeShortName)?.let { classItem ->
+                        if (root == null) {
+                            builder.withRelationBetween(node, classItem)
+                        } else {
+                            builder.withRelationBetween(root, classItem)
+                        }
                         if (classItem.isInterface())
-                            classItem.knownImplementations.forEach { item -> visit(item, visited, classItem) }
+                            classItem.knownImplementations.forEach { item ->
+                                visit(node = item, visited = visited, root = classItem, builder = builder)
+                            }
                         else
-                            visit(classItem, visited)
+                            visit(node = classItem, visited, builder = builder, root = null)
                     }
                 }
             }
         }
+        return builder
     }
 
     private fun isReferenceType(it: KtParameter) = it.typeReference?.typeElement is KtUserType
@@ -80,3 +94,29 @@ data class KtClassItem(
 ) {
     fun isInterface() = ktClass.isInterface()
 }
+
+
+class ModuleBuilder {
+    private val components: MutableSet<KtClassItem> = mutableSetOf()
+    private val relations: MutableSet<Relation> = mutableSetOf()
+
+    fun withComponent(item: KtClassItem) {
+        components.add(item)
+    }
+
+    fun withRelationBetween(from: KtClassItem, to: KtClassItem) {
+        relations.add(Relation(from, to))
+    }
+
+    fun build()=Module(components,relations)
+}
+
+data class Relation(val from: KtClassItem, val to: KtClassItem) {
+    override fun toString(): String {
+        return "Rel: ${from.shortName}==>${to.shortName}"
+    }
+}
+
+data class Module(val components: MutableSet<KtClassItem> = mutableSetOf(),
+                     val relations: MutableSet<Relation> = mutableSetOf())
+
