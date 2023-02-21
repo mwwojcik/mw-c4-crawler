@@ -18,6 +18,6 @@ class C4atC3LevelPrinterStrategyImpl : PrintStrategy {
     }
 
     fun print(relation: Relation, str: StringBuilder) {
-        str.append("Rel(${relation.from.shortName},${relation.to.shortName},\"\")\n")
+        str.append("Rel(${relation.from.shortName},${relation.to.shortName},\"calls\")\n")
     }
 }

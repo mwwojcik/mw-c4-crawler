@@ -41,9 +41,10 @@ class TraverseContext(
     ) :ModuleBuilder {
         if (visited.contains(node.shortName))
             return builder
+        root?.let { builder.withComponent(root) } ?: run { builder.withComponent(node) }
         visited.add(node.shortName)
-        builder.withComponent(node)
-        node.ktClass.primaryConstructor?.valueParameterList?.parameters?.forEach {
+
+        node.primaryConstructorDependencies()?.forEach {
             if (isReferenceType(it)) {
                 extractReferenceName(it)?.let { typeShortName ->
                     resolveTypeByShortName(typeShortName)?.let { classItem ->
@@ -94,6 +95,8 @@ data class KtClassItem(
     var knownImplementations: Set<KtClassItem> = emptySet()
 ) {
     fun isInterface() = ktClass.isInterface()
+
+    fun primaryConstructorDependencies() = ktClass.primaryConstructor?.valueParameterList?.parameters
 }
 
 
