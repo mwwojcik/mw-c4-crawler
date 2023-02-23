@@ -48,16 +48,19 @@ class TraverseContext(
             if (isReferenceType(it)) {
                 extractReferenceName(it)?.let { typeShortName ->
                     resolveTypeByShortName(typeShortName)?.let { classItem ->
-                        if (root == null) {
-                            builder.withRelationBetween(node, classItem)
-                        } else {
-                            builder.withRelationBetween(root, classItem)
-                        }
-                        if (classItem.isInterface())
+
+                        root?.run { builder.withRelationBetween(root, classItem) }
+                            ?: kotlin.run { builder.withRelationBetween(node, classItem) }
+
+                        if (classItem.isInterface()) {
+                            if (classItem.knownImplementations.isEmpty()) {
+                                visited.add(classItem.shortName)
+                                builder.withComponent(classItem)
+                            }
                             classItem.knownImplementations.forEach { item ->
                                 visit(node = item, visited = visited, root = classItem, builder = builder)
                             }
-                        else
+                        } else
                             visit(node = classItem, visited, builder = builder, root = null)
                     }
                 }
