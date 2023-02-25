@@ -46,6 +46,6 @@ class Crawler {
         TraverseContext(psi.flatMap { it.asList() }).traverse().forEach {
             content.append(it.prettyPrint())
         }
-        Files.writeString(Paths.get("doc/content.puml"), content.toString())
+        Files.writeString(config.to.resolve("content.puml"), content.toString())
     }
 }
