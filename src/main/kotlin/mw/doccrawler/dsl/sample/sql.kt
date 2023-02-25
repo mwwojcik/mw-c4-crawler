@@ -114,6 +114,7 @@ fun query(initializer: SqlSelectBuilder.() -> Unit): SqlSelectBuilder {
 }
 
 val q=query {
+    select("a",)
     from("myTable")
     where {
         "column1" eq 4
