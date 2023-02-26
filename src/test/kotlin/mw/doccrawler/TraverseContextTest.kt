@@ -1,17 +1,22 @@
 package mw.doccrawler
 
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
+import io.kotest.core.spec.style.ShouldSpec
 import mw.doccrawler.fixture.KtClassFixture
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
-import org.springframework.util.ResourceUtils
-import java.nio.file.Files
 
-class TraverseContextTest : FunSpec({
-    test("my first test") {
-     val workspace=KtClassFixture().createWorkspaceWithKtClasses()
+class TraverseContextTest : ShouldSpec({
+
+    val workspace=KtClassFixture().createWorkspaceWithKtClasses()
+
+    beforeTest{
+        println("runningTest =>$it")
+    }
+
+    should("my first test") {
         println(workspace)
+    }
+
+    should("my second test"){
+
     }
 
 })

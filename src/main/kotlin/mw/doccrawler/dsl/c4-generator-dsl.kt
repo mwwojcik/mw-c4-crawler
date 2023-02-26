@@ -12,10 +12,15 @@ fun generate(lambda: GeneratorContextBuilder.() -> Unit): GeneratorContext {
 class GeneratorContextBuilder {
     val formats: MutableSet<String> = mutableSetOf()
     lateinit var to: Path
+    lateinit var from: Path
     lateinit var contentContext: ContentContext
 
     fun to(lambda: GeneratorContextBuilder.() -> String) {
         to = Paths.get(lambda())
+    }
+
+    fun from(lambda: GeneratorContextBuilder.() -> String) {
+        from = Paths.get(lambda())
     }
 
     fun withFormats(lambda: GeneratorContextBuilder.() -> String) {
@@ -26,13 +31,12 @@ class GeneratorContextBuilder {
         contentContext = ContentContextBuilder().apply(lambda).build()
     }
 
-    fun build() = GeneratorContext(to, formats.toSet(), contentContext)
+    fun build() = GeneratorContext(from, to, formats.toSet(), contentContext)
 }
 
 class ContentContextBuilder {
     val modules: MutableList<ModuleContext> = mutableListOf()
     val exclusions: MutableList<Condition> = mutableListOf()
-    lateinit var sources: Path
     val componentMapper: MutableMap<String, Condition> = mutableMapOf()
 
     fun select(lambda: ContentContextBuilder.() -> Unit) {
@@ -43,10 +47,6 @@ class ContentContextBuilder {
         modules.add(ModuleContextBuilder().apply(lambda).build())
     }
 
-    fun fromSources(lambda: ContentContextBuilder.() -> String) {
-        sources = Paths.get(lambda())
-    }
-
     fun withExclusions(lambda: ExclusionsContextBuilder.() -> Unit) {
         exclusions.addAll(ExclusionsContextBuilder().apply(lambda).build())
     }
@@ -55,7 +55,7 @@ class ContentContextBuilder {
         componentMapper.putAll(ComponentsMappingContextBuilder().apply(lambda).build())
     }
 
-    fun build(): ContentContext = ContentContext(modules.toList(), sources, exclusions, componentMapper)
+    fun build(): ContentContext = ContentContext(modules.toList(), exclusions, componentMapper)
 }
 
 class ModuleContextBuilder {
@@ -134,6 +134,7 @@ class ConditionContextBuilder {
 }
 
 data class GeneratorContext(
+    val from: Path,
     val to: Path,
     val formats: Set<String> = emptySet(),
     val contentContext: ContentContext
@@ -141,7 +142,6 @@ data class GeneratorContext(
 
 data class ContentContext(
     val modules: List<ModuleContext> = emptyList(),
-    val sources: Path,
     val exclusions: List<Condition>,
     val componentMapper: Map<String, Condition>
 )

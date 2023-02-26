@@ -36,7 +36,7 @@ class Crawler {
     fun process() {
         val config = defaultShapesConfiguration
 
-        val psi = Files.walk(config.contentContext.sources)
+        val psi = Files.walk(config.from)
             .filter { Files.isRegularFile(it) }
             .map {
                 createKtFile(Files.readString(it), it.toString()).getChildrenOfType<KtClass>()

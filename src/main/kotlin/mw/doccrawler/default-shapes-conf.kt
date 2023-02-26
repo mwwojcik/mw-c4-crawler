@@ -3,6 +3,7 @@ package mw.doccrawler.shapes
 import mw.doccrawler.dsl.generate
 
 val defaultShapesConfiguration = generate {
+    from { "src/main/kotlin/domain" }
     to { "doc" }
     withFormats { "png,puml" }
     withContent {
@@ -29,7 +30,6 @@ val defaultShapesConfiguration = generate {
                 }
             }
         }
-        fromSources { "src/main/kotlin/domain" }
         withExclusions {
             whenNameEquals { "eq exclusion" }
             whenNameContains { "const exclusion" }
