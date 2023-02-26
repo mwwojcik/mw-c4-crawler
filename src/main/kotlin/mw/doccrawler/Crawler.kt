@@ -1,6 +1,7 @@
 package mw.doccrawler
 
 import jakarta.annotation.PostConstruct
+import mw.doccrawler.print.C4atC3LevelPrinterStrategyImpl
 import mw.doccrawler.shapes.defaultShapesConfiguration
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -14,7 +15,6 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 import org.springframework.stereotype.Component
 import java.nio.file.Files
-import java.nio.file.Paths
 
 @Component
 class Crawler {
@@ -42,8 +42,13 @@ class Crawler {
                 createKtFile(Files.readString(it), it.toString()).getChildrenOfType<KtClass>()
             }
             .toList()
-        val content:StringBuilder = java.lang.StringBuilder("")
-        TraverseContext(psi.flatMap { it.asList() }).traverse().forEach {
+        val content: StringBuilder = java.lang.StringBuilder("")
+        TraverseContext(psi.flatMap { it.asList() }).traverse().map {
+            it.copy(
+                printStrategy =
+                C4atC3LevelPrinterStrategyImpl()
+            )
+        }.forEach {
             content.append(it.prettyPrint())
         }
         Files.writeString(config.to.resolve("content.puml"), content.toString())
