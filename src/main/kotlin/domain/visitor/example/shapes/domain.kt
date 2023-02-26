@@ -7,5 +7,3 @@ interface ShapeStorageProvider{
 interface ShapeEventPublisher{
     fun publish(shape: Shape)
 }
-
-

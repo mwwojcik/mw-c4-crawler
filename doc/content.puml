@@ -1,4 +1,11 @@
 Container_Boundary(c2,""){
+Component(CircleEndpoint, "CircleEndpoint", "Kotlin", "",$sprite="GPU,scale=0.3")
+Component(CircleServiceImpl, "CircleServiceImpl", "Kotlin", "",$sprite="GPU,scale=0.3")
+Component(ShapeRepository, "ShapeRepository", "Kotlin", "",$sprite="GPU,scale=0.3")
+}
+Rel(CircleEndpoint,CircleServiceImpl,"calls")
+Rel(CircleServiceImpl,ShapeRepository,"calls")
+Container_Boundary(c2,""){
 Component(ShapeEndpoint, "ShapeEndpoint", "Kotlin", "",$sprite="GPU,scale=0.3")
 Component(ShapeService, "ShapeService", "Kotlin", "",$sprite="GPU,scale=0.3")
 Component(ShapeRepository, "ShapeRepository", "Kotlin", "",$sprite="GPU,scale=0.3")
@@ -13,3 +20,10 @@ Rel(ShapeService,ShapeStorageProvider,"calls")
 Rel(ShapeStorageProvider,MongoClient,"calls")
 Rel(ShapeService,ShapeEventPublisher,"calls")
 Rel(ShapeEventPublisher,RabbitClient,"calls")
+Container_Boundary(c2,""){
+Component(RectangleEndpoint, "RectangleEndpoint", "Kotlin", "",$sprite="GPU,scale=0.3")
+Component(RectangleServiceImpl, "RectangleServiceImpl", "Kotlin", "",$sprite="GPU,scale=0.3")
+Component(ShapeRepository, "ShapeRepository", "Kotlin", "",$sprite="GPU,scale=0.3")
+}
+Rel(RectangleEndpoint,RectangleServiceImpl,"calls")
+Rel(RectangleServiceImpl,ShapeRepository,"calls")

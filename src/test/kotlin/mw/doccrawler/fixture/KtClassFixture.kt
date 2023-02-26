@@ -27,7 +27,11 @@ class KtClassFixture {
         "shapes/external/rabbit/ShapeEventPublisherRabbitAdapter.kt",
         "shapes/external/rabbit/RabbitClient.kt",
         "shapes/external/mongo/MongoClient.kt",
-        "shapes/external/mongo/ShapeStorageMongoAdapter.kt"
+        "shapes/external/mongo/ShapeStorageMongoAdapter.kt",
+        "shapes/CircleEndpoint.kt",
+        "shapes/CircleServiceImpl.kt",
+        "shapes/RectangleEndpoint.kt",
+        "shapes/RectangleServiceImpl.kt"
     )
 
     private val project =
