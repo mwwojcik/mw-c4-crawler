@@ -7,48 +7,64 @@ val defaultShapesConfiguration = generate {
     to { "doc" }
     withFormats { "png,puml" }
     withContent {
-        select {
             module {
                 name { "Shapes" }
                 withRoots {
-                    whenNameEquals { "eq" }
-                    whenNameContains { "const" }
+                    include{ "in-1" }
+                    include{ "in-2" }
+                    include{ "in-3" }
+                    exclude{ "ex-1" }
+                    exclude{ "ex-2" }
+                }
+                withComponents {
+                    include { "in-1" }
+                    exclude { "ex-2" }
                 }
             }
-            module {
-                name { "Circles" }
-                withRoots {
-                    whenNameEquals { "eq" }
-                    whenNameContains { "const" }
-                }
+
+        module {
+            name { "Circles" }
+            withRoots {
+                include { "in-test-2" }
+                exclude { "ex-2" }
             }
-            module {
-                name { "Rectangles" }
-                withRoots {
-                    whenNameEquals { "eq" }
-                    whenNameContains { "const" }
-                }
+            withComponents {
+                include { "in-2" }
+                exclude { "ex-2" }
             }
+
         }
-        withExclusions {
-            whenNameEquals { "eq exclusion" }
-            whenNameContains { "const exclusion" }
+        module {
+            name { "Rectangles" }
+            withRoots {
+                include { "in-2" }
+                exclude { "ex-2" }
+            }
+            withComponents {
+                include { "in-2" }
+                exclude { "ex-2" }
+            }
+
         }
         withComponentsMapping {
             endpoint {
-                whenNameContains {"Endpoint"}
+                include { "in-2" }
+                exclude { "ex-2" }
             }
             service {
-                whenNameContains{"Service"}
+                include { "in-2" }
+                exclude { "ex-2" }
             }
             repository {
-                whenNameContains{"repository"}
+                include { "in-2" }
+                exclude { "ex-2" }
             }
             channel {
-                whenNameContains{"channel"}
+                include { "in-2" }
+                exclude { "ex-2" }
+                exclude { "ex-3" }
             }
         }
-
     }
 }
 

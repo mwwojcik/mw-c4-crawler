@@ -3,12 +3,14 @@ package mw.doccrawler.dsl
 import java.nio.file.Path
 import java.nio.file.Paths
 
+@DslMarker
+annotation class DocCrawlerDsl
 
 fun generate(lambda: GeneratorContextBuilder.() -> Unit): GeneratorContext {
     return GeneratorContextBuilder().apply(lambda).build()
 }
 
-
+@DocCrawlerDsl
 class GeneratorContextBuilder {
     val formats: MutableSet<String> = mutableSetOf()
     lateinit var to: Path
@@ -34,103 +36,113 @@ class GeneratorContextBuilder {
     fun build() = GeneratorContext(from, to, formats.toSet(), contentContext)
 }
 
+@DocCrawlerDsl
 class ContentContextBuilder {
     val modules: MutableList<ModuleContext> = mutableListOf()
-    val exclusions: MutableList<Condition> = mutableListOf()
-    val componentMapper: MutableMap<String, Condition> = mutableMapOf()
-
-    fun select(lambda: ContentContextBuilder.() -> Unit) {
-        this.apply(lambda)
-    }
+    val componentMapper: MutableMap<String, SingleComponentMapperContext> = mutableMapOf()
 
     fun module(lambda: ModuleContextBuilder.() -> Unit) {
         modules.add(ModuleContextBuilder().apply(lambda).build())
-    }
-
-    fun withExclusions(lambda: ExclusionsContextBuilder.() -> Unit) {
-        exclusions.addAll(ExclusionsContextBuilder().apply(lambda).build())
     }
 
     fun withComponentsMapping(lambda: ComponentsMappingContextBuilder.() -> Unit) {
         componentMapper.putAll(ComponentsMappingContextBuilder().apply(lambda).build())
     }
 
-    fun build(): ContentContext = ContentContext(modules.toList(), exclusions, componentMapper)
+    fun build(): ContentContext = ContentContext(modules.toList(), componentMapper)
 }
 
+@DocCrawlerDsl
 class ModuleContextBuilder {
-    var name: String = ""
-    val conditions: MutableList<Condition> = mutableListOf()
+    private var name: String = ""
+    private lateinit var rootContext: RootContext
+    private lateinit var componentsContext: ComponentsContext
 
     fun name(lambda: ModuleContextBuilder.() -> String) {
         name = lambda()
     }
 
-    fun withRoots(lambda: ModuleContextBuilder.() -> Unit) {
-        this.apply(lambda)
+    fun withRoots(lambda: RootContextBuilder.() -> Unit) {
+        rootContext = RootContextBuilder().apply(lambda).build()
     }
 
-    fun whenNameEquals(lambda: ModuleContextBuilder.() -> String) {
-        conditions.add(ConditionEq(value = lambda()))
+    fun withComponents(lambda: ComponentsContextBuilder.() -> Unit) {
+        componentsContext = ComponentsContextBuilder().apply(lambda).build()
     }
 
-    fun whenNameContains(lambda: ModuleContextBuilder.() -> String) {
-        conditions.add(ConditionContains(value = lambda()))
-    }
-
-    fun build() = ModuleContext(name, conditions)
+    fun build() = ModuleContext(name, rootContext = rootContext, componentsContext = componentsContext)
 
 }
 
+@DocCrawlerDsl
+class RootContextBuilder {
+    private val excl: MutableList<Condition> = mutableListOf()
+    private val incl: MutableList<Condition> = mutableListOf()
 
-class ExclusionsContextBuilder {
-    val conditions: MutableList<Condition> = mutableListOf()
-
-    fun whenNameEquals(lambda: ExclusionsContextBuilder.() -> String) {
-        conditions.add(ConditionEq(value = lambda()))
+    fun include(lambda: RootContextBuilder.() -> String) {
+        incl.add(Condition(lambda()))
     }
 
-    fun whenNameContains(lambda: ExclusionsContextBuilder.() -> String) {
-        conditions.add(ConditionContains(value = lambda()))
+    fun exclude(lambda: RootContextBuilder.() -> String) {
+        excl.add(Condition(lambda()))
     }
 
-    fun build() = conditions.toList()
+    fun build() = RootContext(inclusions = incl.toList(), exclusions = excl.toList())
 }
+
+@DocCrawlerDsl
+class ComponentsContextBuilder {
+    private val excl: MutableList<Condition> = mutableListOf()
+    private val incl: MutableList<Condition> = mutableListOf()
+
+    fun include(lambda: ComponentsContextBuilder.() -> String) {
+        incl.add(Condition(lambda()))
+    }
+
+    fun exclude(lambda: ComponentsContextBuilder.() -> String) {
+        excl.add(Condition(lambda()))
+    }
+
+    fun build() = ComponentsContext(inclusions = incl.toList(), exclusions = excl.toList())
+}
+
 
 class ComponentsMappingContextBuilder {
-    val componentMapper: MutableMap<String, Condition> = mutableMapOf()
+    val componentMapper: MutableMap<String, SingleComponentMapperContext> = mutableMapOf()
 
-    fun endpoint(lambda: ConditionContextBuilder.() -> Unit) {
-        componentMapper.put("endpoint",ConditionContextBuilder().apply(lambda).build())
+    fun endpoint(lambda: SingleComponentMapperContextBuilder.() -> Unit) {
+        componentMapper.put("endpoint", SingleComponentMapperContextBuilder("endpoint").apply(lambda).build())
     }
 
-    fun service(lambda: ConditionContextBuilder.() -> Unit) {
-        componentMapper.put("service",ConditionContextBuilder().apply(lambda).build())
+    fun service(lambda: SingleComponentMapperContextBuilder.() -> Unit) {
+        componentMapper.put("service", SingleComponentMapperContextBuilder("service").apply(lambda).build())
     }
 
-    fun repository(lambda: ConditionContextBuilder.() -> Unit) {
-        componentMapper.put("repository",ConditionContextBuilder().apply(lambda).build())
+    fun repository(lambda: SingleComponentMapperContextBuilder.() -> Unit) {
+        componentMapper.put("repository", SingleComponentMapperContextBuilder("repository").apply(lambda).build())
     }
 
-    fun channel(lambda: ConditionContextBuilder.() -> Unit) {
-        componentMapper.put("channel",ConditionContextBuilder().apply(lambda).build())
+    fun channel(lambda: SingleComponentMapperContextBuilder.() -> Unit) {
+        componentMapper.put("channel", SingleComponentMapperContextBuilder("channel").apply(lambda).build())
     }
 
     fun build() = componentMapper.toMap()
 }
 
-class ConditionContextBuilder {
-    lateinit var condition: Condition
+class SingleComponentMapperContextBuilder(val name: String) {
+    private val exclude: MutableList<Condition> = mutableListOf()
+    private val include: MutableList<Condition> = mutableListOf()
 
-    fun whenNameEquals(lambda: ConditionContextBuilder.() -> String) {
-        condition = ConditionEq(value = lambda())
+    fun include(lambda: SingleComponentMapperContextBuilder.() -> String) {
+        include.add(Condition(lambda()))
     }
 
-    fun whenNameContains(lambda: ConditionContextBuilder.() -> String) {
-        condition = ConditionContains(value = lambda())
+    fun exclude(lambda: SingleComponentMapperContextBuilder.() -> String) {
+        exclude.add(Condition(lambda()))
     }
 
-    fun build() = condition
+    fun build() =
+        SingleComponentMapperContext(name = name, inclusions = include.toList(), exclusions = exclude.toList())
 }
 
 data class GeneratorContext(
@@ -142,19 +154,25 @@ data class GeneratorContext(
 
 data class ContentContext(
     val modules: List<ModuleContext> = emptyList(),
-    val exclusions: List<Condition>,
-    val componentMapper: Map<String, Condition>
+    val componentMapper: Map<String, SingleComponentMapperContext>
 )
 
 data class ModuleContext(
     val name: String = "",
-    val roots: List<Condition> = emptyList()
+    val rootContext: RootContext? = null,
+    val componentsContext: ComponentsContext? = null
 )
 
-interface Condition {
-    val operator: String
+data class Condition(
     val value: String
-}
+)
 
-data class ConditionEq(override val operator: String = "EQ", override val value: String = "") : Condition
-data class ConditionContains(override val operator: String = "Contains", override val value: String = "") : Condition
+data class RootContext(val inclusions: List<Condition>, val exclusions: List<Condition>)
+
+data class ComponentsContext(val inclusions: List<Condition>, val exclusions: List<Condition>)
+
+data class SingleComponentMapperContext(
+    val name: String,
+    val inclusions: List<Condition>,
+    val exclusions: List<Condition>
+)
